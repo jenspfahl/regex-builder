@@ -144,7 +144,7 @@ All elements are contained in the package `de.jepfa.regex.elements`.
     </tr>
 	<tr>
         <td><pre>Lookbehind</pre></td>
-		<td>A  non-capturing lookahead instruction</td>
+		<td>A  non-capturing lookbehind instruction</td>
 		<td><code>(?&lt;=foo*[bB]ar)</code></td>
 		<td>Yes</td>
 		<td>No</td>
@@ -220,7 +220,7 @@ Each `Element` has its own `Quantifier`. A Quantifier defines the quantification
 	<tr>
 		<td><pre>count(n)</pre></td>
 		<td>Indicates extactly <i>n</i> occurrences of the corresponding element.</td>
-		<td><code>{n,n}</code></td>
+		<td><code>{n}</code></td>
 		<td>n</td>
 		<td>n</td>
     </tr>
@@ -269,10 +269,10 @@ Matching strategies are defined in the enum `Quantifier.Strategy`.
 
 #### Flags ####
 
-Every `Element` can enable or disable `Flag`s in the scope for itself with `switchOn(Flag...)` or  `switchOff(Flag...)`.
+Every `Element` can enable or disable `Flags` in the scope of itself with `switchOn(Flag...)` or  `switchOff(Flag...)`.
 These flags override the flags set on the RegexBuilder with `new RegexBuilder(Flag...)`.
 
-All flags are defined in the enum `RegexBuilder.Flag`. The flags goes with the contants defined in the class Pattern.
+All flags are defined in the enum `RegexBuilder.Flag`. The flags go with the constants defined in the class `java.util.regex.Pattern`.
 
 Usual flags are `IGNORE_CASE_SENSITIVE` or `MULTILINE`.
 
@@ -282,7 +282,7 @@ Usual flags are `IGNORE_CASE_SENSITIVE` or `MULTILINE`.
 
 ### Constructs ###
 
-Constructs are predefined Gropus of Elements. For example creating a Regular Expression for matching lines that **not contains** certain strings is very tough. To reuse such Regular Expressions, Constructs are common.
+Constructs are predefined Groups of Elements with dynamic content. For example creating a Regular Expression for matching lines that **not contains** certain strings is very tough. To reuse such Regular Expressions, Constructs are common.
 
 Predefined constructs are contained in the package `de.jepfa.regex.constructs`.
 
@@ -307,53 +307,57 @@ URL examples:
 - `https://my.example.org:8080/test/regex?WSD`
 - `https://my.2nd.complex-example.org:8080/test/&SESSION=2323?TOKEN=#664344`
 
-This is a possible Regular Expression for that task.
+This is a possible Regular Expression for that challenge.
 
 `^(http[s]?)://((\w(\w|[-.])+)\.\p{Alpha}+).?(\d+)?/?(.*)$`
 
 
-With the RegesBuilder, it looks like follows:
+With the RegexBuilder, it looks like follows:
 
 		RegexBuilder builder = new RegexBuilder(Flag.MULTILINE);
 		
 		
 		Group protocolGroup = new Group(					// (http[s]?)
-				new StringElement("http"),					// http
-				new Chars('s').optional()					// [s]?
+				new StringElement("http"),					//  http
+				new Chars('s').optional()					//      [s]?
 		);
 		
 		Group domainGroup = new Group(						// ((\w(\w|[-.])+)\.\p{Alpha}+)
-				new Group(									// (\w(\w|[-.])+)
-						SystemElement.WORD_CHAR,			// \w
-						new Choice(							// (\w|[-.])
-								SystemElement.WORD_CHAR,	// \w
-								new Chars("-.")				// [-.]
-						).many()							// (\w|[-.])+
+				new Group(									//  (\w(\w|[-.])+)
+						SystemElement.WORD_CHAR,			//   \w
+						new Choice(							//     (\w|[-.])
+								SystemElement.WORD_CHAR,	//      \w
+								new Chars("-.")				//         [-.]
+						).many()							//     (\w|[-.])+
 				),
-				new StringElement("."),						// \.
-				SystemElement.ALPHA_CHAR.many()				// \p{Alpha}+
+				new Chars('.'),								//                \.
+				SystemElement.ALPHA_CHAR.many()				//                  \p{Alpha}+
 		);
 		
 		Group portGroup = new Group(						// (\d+)
-				SystemElement.DIGIT.many()					// \d+
+				SystemElement.DIGIT.many()					//  \d+
 		).optional();										// (\d+)?
 		
 		Group endpointPathGroup = new Group(				// (.*)									
-				SystemElement.ANY							// .*					
+				SystemElement.ANY							//  .*					
 		);
 		
 		
-		builder.add( 
+		builder.add( 										// ^(http[s]?)://((\w(\w|[-.])+)\.\p{Alpha}+).?(\d+)?/?(.*)$
 				LINE_START,									// ^
-				protocolGroup, 								// (http[s]?)
-				new StringElement("://"),					// ://
-				domainGroup, 								// ((\w(\w|[-.])+)\.\p{Alpha}+)
-				SystemElement.ANY_CHAR.optional(),			// .?
-				portGroup,									// (\d+)?
-				new Chars('/').optional(),					// /?
-				endpointPathGroup,							// (.*)
-				LINE_END									// $
+				protocolGroup, 								//  (http[s]?)
+				new StringElement("://"),					//            ://
+				domainGroup, 								//               ((\w(\w|[-.])+)\.\p{Alpha}+)
+				SystemElement.ANY_CHAR.optional(),			//                                           .?
+				portGroup,									//                                             (\d+)?
+				new Chars('/').optional(),					//                                                   /?
+				endpointPathGroup,							//                                                     (.*)
+				LINE_END									//                                                         $
 		);
+
+The resulting regex string differs a little bit, but the result should be the same:
+
+`^(\Qhttp\E[s]?)\Q://\E((\w(\w|[\-\.])+)[\.]\p{Alpha}+).?(\d+)?[\/]?(.*)$`
 
 
 To see the whole test code, look here: `RegexBuilderTest.testURL()`

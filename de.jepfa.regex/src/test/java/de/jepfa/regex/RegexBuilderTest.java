@@ -53,44 +53,44 @@ public class RegexBuilderTest {
 		
 		
 		Group protocolGroup = new Group(					// (http[s]?)
-				new StringElement("http"),					// http
-				new Chars('s').optional()					// [s]?
+				new StringElement("http"),					//  http
+				new Chars('s').optional()					//      [s]?
 		);
 		
 		Group domainGroup = new Group(						// ((\w(\w|[-.])+)\.\p{Alpha}+)
-				new Group(									// (\w(\w|[-.])+)
-						SystemElement.WORD_CHAR,			// \w
-						new Choice(							// (\w|[-.])
-								SystemElement.WORD_CHAR,	// \w
-								new Chars("-.")				// [-.]
-						).many()							// (\w|[-.])+
+				new Group(									//  (\w(\w|[-.])+)
+						SystemElement.WORD_CHAR,			//   \w
+						new Choice(							//     (\w|[-.])
+								SystemElement.WORD_CHAR,	//      \w
+								new Chars("-.")				//         [-.]
+						).many()							//     (\w|[-.])+
 				),
-				new StringElement("."),						// \.
-				SystemElement.ALPHA_CHAR.many()				// \p{Alpha}+
+				new Chars('.'),								//                \.
+				SystemElement.ALPHA_CHAR.many()				//                  \p{Alpha}+
 		);
 		
 		Group portGroup = new Group(						// (\d+)
-				SystemElement.DIGIT.many()					// \d+
+				SystemElement.DIGIT.many()					//  \d+
 		).optional();										// (\d+)?
 		
 		Group endpointPathGroup = new Group(				// (.*)									
-				SystemElement.ANY							// .*					
+				SystemElement.ANY							//  .*					
 		);
 		
 		
-		builder.add( 
+		builder.add( 										// ^(http[s]?)://((\w(\w|[-.])+)\.\p{Alpha}+).?(\d+)?/?(.*)$
 				LINE_START,									// ^
-				protocolGroup, 								// (http[s]?)
-				new StringElement("://"),					// ://
-				domainGroup, 								// ((\w(\w|[-.])+)\.\p{Alpha}+)
-				SystemElement.ANY_CHAR.optional(),			// .?
-				portGroup,									// (\d+)?
-				new Chars('/').optional(),					// /?
-				endpointPathGroup,							// (.*)
-				LINE_END									// $
+				protocolGroup, 								//  (http[s]?)
+				new StringElement("://"),					//            ://
+				domainGroup, 								//               ((\w(\w|[-.])+)\.\p{Alpha}+)
+				SystemElement.ANY_CHAR.optional(),			//                                           .?
+				portGroup,									//                                             (\d+)?
+				new Chars('/').optional(),					//                                                   /?
+				endpointPathGroup,							//                                                     (.*)
+				LINE_END									//                                                         $
 		);
 		
-		Assert.assertEquals("^(\\Qhttp\\E[s]?)\\Q://\\E((\\w(\\w|[\\-\\.])+)\\Q.\\E\\p{Alpha}+).?(\\d+)?[\\/]?(.*)$", 
+		Assert.assertEquals("^(\\Qhttp\\E[s]?)\\Q://\\E((\\w(\\w|[\\-\\.])+)[\\.]\\p{Alpha}+).?(\\d+)?[\\/]?(.*)$", 
 				builder.toRegex());
 		
 		Pattern pattern = builder.buildPattern();
