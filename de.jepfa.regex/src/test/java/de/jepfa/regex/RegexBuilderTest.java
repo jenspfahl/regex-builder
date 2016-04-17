@@ -1,7 +1,6 @@
 package de.jepfa.regex;
 
 import static de.jepfa.regex.TestHelper.*;
-import static de.jepfa.regex.elements.SystemElement.*;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
@@ -15,9 +14,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.jepfa.regex.RegexBuilder.Flag;
+import de.jepfa.regex.components.ChangeableElement;
 import de.jepfa.regex.components.Element;
 import de.jepfa.regex.components.Quantifier;
 import de.jepfa.regex.components.Quantifier.Strategy;
+import de.jepfa.regex.constructs.Word;
+import de.jepfa.regex.constructs.Words;
+import de.jepfa.regex.elements.Any;
+import de.jepfa.regex.elements.Boundary;
+import de.jepfa.regex.elements.Char;
 import de.jepfa.regex.elements.Chars;
 import de.jepfa.regex.elements.Choice;
 import de.jepfa.regex.elements.Group;
@@ -26,9 +31,6 @@ import de.jepfa.regex.elements.Lookbehind;
 import de.jepfa.regex.elements.NonCapturing;
 import de.jepfa.regex.elements.StringElement;
 import de.jepfa.regex.elements.Strings;
-import de.jepfa.regex.elements.SystemElement;
-import de.jepfa.regex.elements.Word;
-import de.jepfa.regex.elements.Words;
 import de.jepfa.regex.helper.Changer;
 import de.jepfa.regex.helper.Printer;
 
@@ -59,35 +61,35 @@ public class RegexBuilderTest {
 		
 		Group domainGroup = new Group(						// ((\w(\w|[-.])+)\.\p{Alpha}+)
 				new Group(									//  (\w(\w|[-.])+)
-						SystemElement.WORD_CHAR,			//   \w
+						Char.WORD_CHAR,						//   \w
 						new Choice(							//     (\w|[-.])
-								SystemElement.WORD_CHAR,	//      \w
+								Char.WORD_CHAR,				//      \w
 								new Chars("-.")				//         [-.]
 						).many()							//     (\w|[-.])+
 				),
 				new Chars('.'),								//                \.
-				SystemElement.ALPHA_CHAR.many()				//                  \p{Alpha}+
+				Char.ALPHA_CHAR.many()						//                  \p{Alpha}+
 		);
 		
 		Group portGroup = new Group(						// (\d+)
-				SystemElement.DIGIT.many()					//  \d+
+				Char.NUMBER									//  \d+
 		).optional();										// (\d+)?
 		
 		Group endpointPathGroup = new Group(				// (.*)									
-				SystemElement.ANY							//  .*					
+				Any.ANY										//  .*					
 		);
 		
 		
 		builder.add( 										// ^(http[s]?)://((\w(\w|[-.])+)\.\p{Alpha}+).?(\d+)?/?(.*)$
-				LINE_START,									// ^
+				Boundary.LINE_START,						// ^
 				protocolGroup, 								//  (http[s]?)
 				new StringElement("://"),					//            ://
 				domainGroup, 								//               ((\w(\w|[-.])+)\.\p{Alpha}+)
-				SystemElement.ANY_CHAR.optional(),			//                                           .?
+				Any.ANY_CHAR.optional(),					//                                           .?
 				portGroup,									//                                             (\d+)?
 				new Chars('/').optional(),					//                                                   /?
 				endpointPathGroup,							//                                                     (.*)
-				LINE_END									//                                                         $
+				Boundary.LINE_END							//                                                         $
 		);
 		
 		Assert.assertEquals("^(\\Qhttp\\E[s]?)\\Q://\\E((\\w(\\w|[\\-\\.])+)[\\.]\\p{Alpha}+).?(\\d+)?[\\/]?(.*)$", 
@@ -133,14 +135,23 @@ public class RegexBuilderTest {
 	}
 	
 	@Test
+	public final void testExamples_0() {
+		ChangeableElement changeableChar = Char.SPACE.changeable();
+		changeableChar.setChangeable();
+		changeableChar.optional();
+		doIt("\\s?\\s?[\\s]", 
+				changeableChar, changeableChar, new Chars(Char.SPACE.toCharClass()));
+	}
+	
+	@Test
 	public final void testExamples_1() {
-		doIt("^((\\b(\\Qhallo Jens\\E)\\b)*?)$", 
-				LINE_START, 
+		doIt("^((\\b((\\Qhallo Jens\\E))\\b)*?)$", 
+				Boundary.LINE_START, 
 				new Group(
 						new Word(
 								new Strings("hallo Jens")).arbitrary().strategy(Quantifier.Strategy.LAZY)
 						), 
-				LINE_END
+				Boundary.LINE_END
 				);
 	}
 	
@@ -162,20 +173,19 @@ public class RegexBuilderTest {
 	
 	@Test
 	public final void testExamples_4() {
-		doIt("[a-z123&&[^d-f]]+", 
-				new Chars('a', 'z').add("123").subtract(new Chars('d', 'f')).many()
+		doIt("[a-z123\\p{Sc}&&[^d-f]]+", 
+				new Chars('a', 'z').add("123").subtract(new Chars('d', 'f')).add(Char.CURRENCY.toCharClass()).many()
 		);
 	}
 	
 	@Test
 	public final void testExamples_5() {
 		Group group = new Group(new Strings("Jens")).count(7);
-		group.add(WORD_CHAR.many()); // has no effect because a new instance is created and thereon added
-		Changer.change(group, e -> e.add(WORD_CHAR.many())); // now it HAS effect because clone mode is disabled
-		
+		group.add(Char.WORD_CHAR.many()); // has no effect because a new instance is created and thereon added
+		Changer.change(group, e -> e.add(Char.WORD_CHAR.many())); // now it HAS effect because clone mode is disabled
 		doIt("((\\QJens\\E)\\w+){2}+.*((\\QJens\\E)\\w+){4}", 
 				group.count(2).strategy(Quantifier.Strategy.POSSESSIVE), 
-				ANY_CHAR.optional().many(), 
+				Any.ANY, 
 				group.count(4)
 		);
 	}
@@ -203,7 +213,7 @@ public class RegexBuilderTest {
 	public final void testExamples_8() {
 		doIt("(\\Q[\\E).(\\Q]\\E)", 
 				new Strings("["), 
-				ANY_CHAR, 
+				Any.ANY_CHAR, 
 				new Strings("]")
 		);
 	}
@@ -213,11 +223,11 @@ public class RegexBuilderTest {
 		
 		doIt("(?<!\\w\\d(\\w|\\d))", 
 				new Lookbehind(
-						WORD_CHAR, 
-						DIGIT, 
+						Char.WORD_CHAR, 
+						Char.DIGIT, 
 						new Choice(
-								WORD_CHAR, 
-								DIGIT
+								Char.WORD_CHAR, 
+								Char.DIGIT
 						)
 				).not()
 		);
@@ -232,7 +242,7 @@ public class RegexBuilderTest {
 	
 	@Test
 	public final void testExamples_B() {
-		doIt("(\\b\\QJe\\E|\\QHa\\E\\b)", 
+		doIt("(\\b(\\QJe\\E|\\QHa\\E)\\b)", 
 				new Words("Je", "Ha")
 		);
 	}
@@ -242,11 +252,11 @@ public class RegexBuilderTest {
 		doIt("(?m:((\\QCompany\\E)\\s*(\\Q()\\E)\\s*(\\Q==\\E|\\Q!=\\E)\\s*+(?!(\\QCompanyCode\\E))(?!(\\Qnull\\E))))",
 				new Group(
 					new Strings("Company"), 
-					SPACE_CHAR.arbitrary(), 
+					Char.SPACE_CHAR.arbitrary(), 
 					new Strings("()"), 
-					SPACE_CHAR.arbitrary(), 
+					Char.SPACE_CHAR.arbitrary(), 
 					new Strings("==", "!="),
-					SPACE_CHAR.arbitrary().strategy(Strategy.POSSESSIVE), 
+					Char.SPACE_CHAR.arbitrary().strategy(Strategy.POSSESSIVE), 
 					new Lookahead(new Strings("CompanyCode")).not(),
 					new Lookahead(new Strings("null")).not()
 				).switchOn(Flag.MULTILINE)

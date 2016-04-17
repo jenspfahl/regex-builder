@@ -1,5 +1,7 @@
 package de.jepfa.regex.elements;
 
+import de.jepfa.regex.components.Element;
+
 /**
  * This class defines many {@link StringElement}s. All elements in this class are combined with logical ORs. 
  * So this element matches if ANY of all elements matches.
@@ -12,6 +14,10 @@ public class Strings extends Choice {
 		for (String s : strings) {
 			elems.add(new StringElement(s));
 		}
+	}
+	
+	public Strings(Element... elem) {
+		super(elem);
 	}
 	
 	

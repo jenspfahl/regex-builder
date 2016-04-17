@@ -5,6 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import de.jepfa.regex.RegexBuilderException;
+import de.jepfa.regex.components.CharClass;
 import de.jepfa.regex.components.Element;
 
 
@@ -31,7 +32,7 @@ public class CharsTest {
 	
 	@Test(expected=RegexBuilderException.class)
 	public final void testNull() throws Exception {
-		new Chars(null);
+		new Chars((CharClass)null);
 	}
 	
 	@Test
@@ -72,6 +73,16 @@ public class CharsTest {
 		Assert.assertEquals("", chars.toRegex());
 		
 		Assert.assertEquals("[a\\-c]", addedChars.toRegex());
+	}
+	
+	@Test
+	public final void testAdd_CharClass() throws Exception {
+		Chars addedChars = chars.add(Char.LETTER.toCharClass());
+		
+		Assert.assertNotSame(chars, addedChars);
+		Assert.assertEquals("", chars.toRegex());
+		
+		Assert.assertEquals("[\\p{L}]", addedChars.toRegex());
 	}
 	
 	

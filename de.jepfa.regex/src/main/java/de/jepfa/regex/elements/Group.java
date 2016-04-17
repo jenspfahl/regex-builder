@@ -107,7 +107,7 @@ public class Group extends ChangeableElement {
 	@Override
 	protected String elementToRegex() {
 		StringBuilder sb = new StringBuilder();
-		sb.append(getBegin());
+		sb.append("(");
 		sb.append(getPrefix());
 		boolean firstDone = false;
 		for (Element element : getElemsForRegex()) {
@@ -117,7 +117,7 @@ public class Group extends ChangeableElement {
 			sb.append(element.toRegex());
 			firstDone = true;
 		}
-		sb.append(getEnd());
+		sb.append(")");
 		return sb.toString();
 	}
 
@@ -135,20 +135,7 @@ public class Group extends ChangeableElement {
 	public String toString() {
 		return this.getClass().getSimpleName() + " [index=" + index + ", q=" + getQuantifier() + ", flags=" + getFlags() + "] = " + toRegex();
 	}
-	
-	/**
-	 * @return the start token of a group
-	 */
-	protected String getBegin() {
-		return "(";
-	}
-	
-	/**
-	 * @return the stop token of a group
-	 */
-	protected String getEnd() {
-		return ")";
-	}
+
 	
 
 	/**

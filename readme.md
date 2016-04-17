@@ -58,8 +58,8 @@ Java Regular Expression offers **backreferences**, that can be accessed directly
 
 Here is a sample how you can access groups:
 
-	Group g1 = new Group(SystemElement.WORD);
-	Group g2 = new Group(SystemElement.SPACE);
+	Group g1 = new Group(Char.WORD.many());
+	Group g2 = new Group(Char.SPACE.many());
 	Pattern p = new RegexBuilder(g1, g2).buildPattern();
 	Matcher m = p.matcher("foo bar");
 	m.group(g1.getIndex()); // matches "foo"
@@ -81,8 +81,8 @@ All elements are contained in the package `de.jepfa.regex.elements`.
 
 	<tr>
 		<td><pre>Chars</pre></td>
-		<td>Character Class or also called a Character Set</td>
-		<td><code>[ac-z]</code></td>
+		<td>A Character Set, a set of characters</td>
+		<td><code>[ac-z\s]</code></td>
 		<td>Yes</td>
 		<td>No</td>
     </tr>
@@ -157,8 +157,22 @@ All elements are contained in the package `de.jepfa.regex.elements`.
 		<td>No</td>
     </tr>
 	<tr>
-        <td><pre>SystemElement</pre></td>
-		<td>A predefined Regex</td>
+        <td><pre>Any</pre></td>
+		<td>Predefined expressions for wildcards</td>
+		<td><code>.</code></td>
+		<td>No, use <code>changeable()</code> to become a changeable element of it</td>
+		<td>No</td>
+    </tr>
+	<tr>
+        <td><pre>Boundary</pre></td>
+		<td>Predefined expressions of boundary matches</td>
+		<td><code>^</code></td>
+		<td>No, use <code>changeable()</code> to become a changeable element of it</td>
+		<td>No</td>
+    </tr>
+	<tr>
+        <td><pre>Char</pre></td>
+		<td>Predefined expressions of character classes</td>
 		<td><code>\d</code></td>
 		<td>No, use <code>changeable()</code> to become a changeable element of it</td>
 		<td>No</td>
@@ -324,35 +338,35 @@ With the RegexBuilder, it looks like follows:
 		
 		Group domainGroup = new Group(						// ((\w(\w|[-.])+)\.\p{Alpha}+)
 				new Group(									//  (\w(\w|[-.])+)
-						SystemElement.WORD_CHAR,			//   \w
+						Char.WORD_CHAR,						//   \w
 						new Choice(							//     (\w|[-.])
-								SystemElement.WORD_CHAR,	//      \w
+								Char.WORD_CHAR,				//      \w
 								new Chars("-.")				//         [-.]
 						).many()							//     (\w|[-.])+
 				),
 				new Chars('.'),								//                \.
-				SystemElement.ALPHA_CHAR.many()				//                  \p{Alpha}+
+				Char.ALPHA_CHAR.many()						//                  \p{Alpha}+
 		);
 		
 		Group portGroup = new Group(						// (\d+)
-				SystemElement.DIGIT.many()					//  \d+
+				Char.NUMBER									//  \d+
 		).optional();										// (\d+)?
 		
 		Group endpointPathGroup = new Group(				// (.*)									
-				SystemElement.ANY							//  .*					
+				Any.ANY										//  .*					
 		);
 		
 		
 		builder.add( 										// ^(http[s]?)://((\w(\w|[-.])+)\.\p{Alpha}+).?(\d+)?/?(.*)$
-				LINE_START,									// ^
+				Boundary.LINE_START,						// ^
 				protocolGroup, 								//  (http[s]?)
 				new StringElement("://"),					//            ://
 				domainGroup, 								//               ((\w(\w|[-.])+)\.\p{Alpha}+)
-				SystemElement.ANY_CHAR.optional(),			//                                           .?
+				Any.ANY_CHAR.optional(),					//                                           .?
 				portGroup,									//                                             (\d+)?
 				new Chars('/').optional(),					//                                                   /?
 				endpointPathGroup,							//                                                     (.*)
-				LINE_END									//                                                         $
+				Boundary.LINE_END							//                                                         $
 		);
 
 The resulting regex string differs a little bit, but the result should be the same:

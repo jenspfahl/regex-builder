@@ -7,6 +7,7 @@ import java.util.List;
 
 import de.jepfa.regex.RegexBuilderException;
 import de.jepfa.regex.components.ChangeableElement;
+import de.jepfa.regex.components.CharClass;
 import de.jepfa.regex.components.Regexable;
 
 
@@ -27,8 +28,13 @@ public class Chars extends ChangeableElement {
 		private Character ch;
 		private Character cfrom;
 		private Character cto;
+		private CharClass charClass;
 
-
+		public CharSet(CharClass charClass) {
+			checkNotNull(charClass);
+			this.charClass = charClass;
+		}
+		
 		public CharSet(Character ch) {
 			checkNotNull(ch);
 			this.ch = ch;
@@ -49,7 +55,10 @@ public class Chars extends ChangeableElement {
 		@Override
 		public String toRegex() {
 			StringBuilder sb = new StringBuilder();
-			if (ch != null) {
+			if (charClass != null) {
+				sb.append(charClass.toRegex());
+			}
+			else if (ch != null) {
 				sb.append(getQuotedChar(ch));
 			}
 			else if (cfrom != null && cto != null) {
@@ -88,6 +97,15 @@ public class Chars extends ChangeableElement {
 
 
 	/**
+	 * Matches predefined {@link Char}.
+	 * 
+	 * @param charClass a character class. 
+	 */
+	public Chars(CharClass charClass) {
+		charSet.add(new CharSet(charClass));
+	}
+	
+	/**
 	 * Matches the character <code>ch</code>.
 	 * 
 	 * @param ch a character to match. 
@@ -119,6 +137,17 @@ public class Chars extends ChangeableElement {
 		charSet.add(new CharSet(from, to));
 	}
 
+	
+	/**
+	 * Matches a predefined {@link CharClass} in addition to the current Character Set.
+	 * 
+	 * @param charClass a character class. 
+	 * 
+	 * @return a changed clone, see {@link ChangeableElement}
+	 */
+	public <T extends Chars> T add(CharClass charClass) {
+		return cloneAndCall(e -> e.charSet.add(new CharSet(charClass)));
+	}
 	
 	/**
 	 * Matches the character <code>ch</code> in addition to the current Character Set.

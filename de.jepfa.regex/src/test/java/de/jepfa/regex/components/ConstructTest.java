@@ -6,8 +6,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import de.jepfa.regex.elements.Boundary;
 import de.jepfa.regex.elements.Group;
-import de.jepfa.regex.elements.SystemElement;
 import de.jepfa.regex.elements.TestElement;
 
 
@@ -29,9 +29,9 @@ public class ConstructTest {
 				Assert.assertNotNull(list);
 				Assert.assertTrue(list.isEmpty());
 				
-				list.add(SystemElement.STRING_START);
+				list.add(Boundary.INPUT_START);
 				list.add(new Group(content));
-				list.add(SystemElement.STRING_END);
+				list.add(Boundary.INPUT_END);
 			}
 		};
 	}
@@ -51,12 +51,12 @@ public class ConstructTest {
 		
 		
 		Assert.assertEquals(3, construct.getElemsForRegex().size());
-		Assert.assertEquals(SystemElement.STRING_START, construct.getElemsForRegex().get(0));
+		Assert.assertEquals(Boundary.INPUT_START, construct.getElemsForRegex().get(0));
 		Assert.assertTrue(construct.getElemsForRegex().get(1) instanceof Group);
 		Group group = (Group)construct.getElemsForRegex().get(1);
 		Assert.assertEquals(1, group.getElements().size());
 		Assert.assertEquals(origin, group.getElements().get(0));
-		Assert.assertEquals(SystemElement.STRING_END, construct.getElemsForRegex().get(2));
+		Assert.assertEquals(Boundary.INPUT_END, construct.getElemsForRegex().get(2));
 	}
 	
 

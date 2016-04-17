@@ -1,10 +1,11 @@
-package de.jepfa.regex.elements;
+package de.jepfa.regex.constructs;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import de.jepfa.regex.components.Element;
+import de.jepfa.regex.elements.Chars;
 
 
 
@@ -24,8 +25,8 @@ public class WordTest {
 		Element clonedElement = word.clone();
 		
 		Assert.assertNotSame(word, clonedElement);
-		Assert.assertEquals("(\\b\\b)", word.toRegex());
-		Assert.assertEquals("(\\b\\b)", clonedElement.toRegex());
+		Assert.assertEquals("(\\b()\\b)", word.toRegex());
+		Assert.assertEquals("(\\b()\\b)", clonedElement.toRegex());
 	}
 	
 	@Test
@@ -35,10 +36,10 @@ public class WordTest {
 		
 		Assert.assertNotSame(word, addedWords);
 		Assert.assertEquals(0, word.getElements().size());
-		Assert.assertEquals("(\\b\\b)", word.toRegex());
+		Assert.assertEquals("(\\b()\\b)", word.toRegex());
 		
 		Assert.assertEquals(2, addedWords.getElements().size());
-		Assert.assertEquals("(\\b(\\Qword\\E)[sz]\\b)", addedWords.toRegex());
+		Assert.assertEquals("(\\b((\\Qword\\E)[sz])\\b)", addedWords.toRegex());
 	}
 	
 	@Test
@@ -48,10 +49,10 @@ public class WordTest {
 		
 		Assert.assertNotSame(word, addedWords);
 		Assert.assertEquals(0, word.getElements().size());
-		Assert.assertEquals("(\\b\\b)", word.toRegex());
+		Assert.assertEquals("(\\b()\\b)", word.toRegex());
 		
 		Assert.assertEquals(2, addedWords.getElements().size());
-		Assert.assertEquals("(\\B(\\Qword\\E)[sz]\\B)", addedWords.toRegex());
+		Assert.assertEquals("(\\B((\\Qword\\E)[sz])\\B)", addedWords.toRegex());
 	}
 	
 	

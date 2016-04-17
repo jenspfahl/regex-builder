@@ -1,4 +1,4 @@
-package de.jepfa.regex.elements;
+package de.jepfa.regex.constructs;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -24,8 +24,8 @@ public class WordsTest {
 		Element clonedElement = words.clone();
 		
 		Assert.assertNotSame(words, clonedElement);
-		Assert.assertEquals("(\\b\\Qnop\\E\\b)", words.toRegex());
-		Assert.assertEquals("(\\b\\Qnop\\E\\b)", clonedElement.toRegex());
+		Assert.assertEquals("(\\b(\\Qnop\\E)\\b)", words.toRegex());
+		Assert.assertEquals("(\\b(\\Qnop\\E)\\b)", clonedElement.toRegex());
 	}
 	
 	@Test
@@ -35,23 +35,23 @@ public class WordsTest {
 		
 		Assert.assertNotSame(words, addedWords);
 		Assert.assertEquals(1, words.getElements().size());
-		Assert.assertEquals("(\\b\\Qnop\\E\\b)", words.toRegex());
+		Assert.assertEquals("(\\b(\\Qnop\\E)\\b)", words.toRegex());
 		
 		Assert.assertEquals(3, addedWords.getElements().size());
-		Assert.assertEquals("(\\b\\Qnop\\E|\\Qone\\E|\\Qtwo\\E\\b)", addedWords.toRegex());
+		Assert.assertEquals("(\\b(\\Qnop\\E|\\Qone\\E|\\Qtwo\\E)\\b)", addedWords.toRegex());
 	}
 	
 	@Test
 	public final void testWords_WithNot() throws Exception {
-		Words addedWords = words.not().add("one", "two");
+		Words addedWords = words.add("one", "two").not();
 		
 		
 		Assert.assertNotSame(words, addedWords);
 		Assert.assertEquals(1, words.getElements().size());
-		Assert.assertEquals("(\\b\\Qnop\\E\\b)", words.toRegex());
+		Assert.assertEquals("(\\b(\\Qnop\\E)\\b)", words.toRegex());
 		
 		Assert.assertEquals(3, addedWords.getElements().size());
-		Assert.assertEquals("(\\B\\Qnop\\E|\\Qone\\E|\\Qtwo\\E\\B)", addedWords.toRegex());
+		Assert.assertEquals("(\\B(\\Qnop\\E|\\Qone\\E|\\Qtwo\\E)\\B)", addedWords.toRegex());
 	}
 
 	

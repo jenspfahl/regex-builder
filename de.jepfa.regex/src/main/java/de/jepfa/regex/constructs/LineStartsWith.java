@@ -5,9 +5,11 @@ import java.util.List;
 import de.jepfa.regex.components.ChangeableElement;
 import de.jepfa.regex.components.Construct;
 import de.jepfa.regex.components.Element;
+import de.jepfa.regex.components.SystemElement;
+import de.jepfa.regex.elements.Any;
+import de.jepfa.regex.elements.Boundary;
 import de.jepfa.regex.elements.Group;
 import de.jepfa.regex.elements.Lookahead;
-import de.jepfa.regex.elements.SystemElement;
 
 /**
  * This is a special {@link Construct} that matches, if the given {@link Element}s occurred at the beginning of a line. 
@@ -54,15 +56,15 @@ public class LineStartsWith extends Construct {
 	
 	@Override
 	protected void fillConstruct(List<Element> list, Element... containment) {
-		list.add(SystemElement.LINE_START);
+		list.add(Boundary.LINE_START);
 		if (not) {
 			list.add(new Lookahead(containment).not());
 		}
 		else {
 			list.add(new Group(containment));
 		}
-		list.add(SystemElement.ANY);
-		list.add(SystemElement.LINE_END);
+		list.add(Any.ANY);
+		list.add(Boundary.LINE_END);
 	}
 
 

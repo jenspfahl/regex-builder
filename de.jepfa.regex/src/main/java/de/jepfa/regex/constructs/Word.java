@@ -1,6 +1,12 @@
-package de.jepfa.regex.elements;
+package de.jepfa.regex.constructs;
 
+import java.util.List;
+
+import de.jepfa.regex.components.Construct;
 import de.jepfa.regex.components.Element;
+import de.jepfa.regex.elements.Boundary;
+import de.jepfa.regex.elements.Group;
+import de.jepfa.regex.elements.Strings;
 
 /**
  * This element helps you to define a word, that should match. You can also define {@link Element}s, that
@@ -9,7 +15,7 @@ import de.jepfa.regex.components.Element;
  *
  * @author Jens Pfahl
  */
-public class Word extends Group {
+public class Word extends Construct {
 
 	protected boolean not;
 
@@ -32,21 +38,20 @@ public class Word extends Group {
 	}
 	
 	@Override
-	protected String getBegin() {
-		return super.getBegin() + getBoundary(not);
+	protected void fillConstruct(List<Element> list, Element... content) {
+		addBoundary(list);
+		list.add(new Group(content));
+		addBoundary(list);
 	}
-	
-	@Override
-	protected String getEnd() {
-		return getBoundary(not) + super.getEnd();
-	};
-	
-	
-	
-	static String getBoundary(boolean not) {
+
+	protected void addBoundary(List<Element> list) {
 		if (not) {
-			return "\\B";
+			list.add(Boundary.NOT_A_WORD);
+		} else {
+			list.add(Boundary.WORD);
 		}
-		return "\\b";
 	}
+	
+
+
 }
