@@ -34,14 +34,14 @@ This example creates a `Pattern` that matches all characters *'a'*, *'c'* and *'
 
 ### Functional design ###
 
-Any modification on an `Element` applies to a new instance and let the original Element unchanged. This is to avoid side effects.
+Every modification on an `Element` applies to a new instance and let the original Element unchanged. This is to avoid side effects.
 The following sample demonstrates the purpose of this design decision:
 
 
     Element string = new StringElement("foo"); 
     new RegexBuilder(string, string.many());
 
-The method `many()` return a new instance of type `StringElement` with the same state like the `string`-instance **plus** the modification done by this method. So, this manipulation doesn't *contanimate* the state of the `string`-instance.
+The method `many()` returns a new instance of type `StringElement` with the same state like the `string`-instance **plus** the modification done by this method. So, this manipulation doesn't *contanimate* the state of the `string`-instance.
  
 
 ----------
@@ -50,7 +50,7 @@ The method `many()` return a new instance of type `StringElement` with the same 
 
 #### Manipulation ####
 
-As descriped before, all elements are **immutable** and any modification results in a cloned instance of the original. If you want to change an instance without cloning, you can activate the *change-mode* on an element with `setChangeable()`. To deactivate this mode use `unsetChangeable()`.
+As descriped before, all elements are **immutable** and every modification results in a cloned instance of the original. If you want to change an instance without cloning, you can activate the *change-mode* on an element with `setChangeable()`. To deactivate this mode use `unsetChangeable()`.
 
 #### Group elements ####
 
@@ -58,12 +58,12 @@ Java Regular Expression offers **backreferences**, that can be accessed directly
 
 Here is a sample how you can access groups:
 
-	Group g1 = new Group(Char.WORD.many());
-	Group g2 = new Group(Char.SPACE.many());
+	Group g1 = new Group(Char.WORD);
+	Group g2 = new Group(Char.SPACE);
 	Pattern p = new RegexBuilder(g1, g2).buildPattern();
 	Matcher m = p.matcher("foo bar");
-	m.group(g1.getIndex()); // matches "foo"
-	m.group(g2.getIndex()); // matches " " after "foo"
+	m.group(g1.getIndex()); // matches "foo" and "bar"
+	m.group(g2.getIndex()); // matches " "
 
 
 #### Overview of elements ####
@@ -286,7 +286,7 @@ Matching strategies are defined in the enum `Quantifier.Strategy`.
 Every `Element` can enable or disable `Flags` in the scope of itself with `switchOn(Flag...)` or  `switchOff(Flag...)`.
 These flags override the flags set on the RegexBuilder with `new RegexBuilder(Flag...)`.
 
-All flags are defined in the enum `RegexBuilder.Flag`. The flags go with the constants defined in the class `java.util.regex.Pattern`.
+All flags are defined in the enum `RegexBuilder.Flag`. The flags come with the constants defined in the class `java.util.regex.Pattern`.
 
 Usual flags are `IGNORE_CASE_SENSITIVE` or `MULTILINE`.
 

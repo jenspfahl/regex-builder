@@ -32,17 +32,17 @@ public abstract class Construct extends Group {
 		List<Element> list = new LinkedList<>();
 		
 		List<Element> elemsForRegex = super.getElemsForRegex();
-		Element[] containment = elemsForRegex.toArray(new Element[elemsForRegex.size()]);
+		Element[] content = elemsForRegex.toArray(new Element[elemsForRegex.size()]);
 		
-		fillConstruct(list, containment);
+		fillConstruct(list, content);
 				
 		return list;
 	}
 
 
 	/**
-	 * Overwrite this method to construct fill the given <code>list</code> with all {@link Element}s
-	 * you need for your Construct. To make Constructs dynamic, use the given <code>containment</code>
+	 * Overwrite this method to fill the given <code>list</code> with all {@link Element}s
+	 * you need for your Construct. To make Constructs dynamic, use the given <code>content</code>
 	 * for your construction. 
 	 * 
 	 * @param list the list to fill, initially empty and not <code>null</code>
