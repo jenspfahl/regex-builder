@@ -3,8 +3,8 @@
 ## Introduction ##
 
 Writing Regular Expressions can be very difficult and exhausting.
-A lot of brackets and special characters hinder the readability. And a single misplaced token can make your expression corrupted. 
-So I had the idea to create an API for creating Regular Expressions with predefined Java classes.
+A lot of brackets and special characters hinder the readability. And a single misplaced token can corrupt your whole expression. 
+Therefor I had the idea to create an API for creating Regular Expressions with predefined Java classes.
 
 ## Objective ##
 
@@ -34,14 +34,14 @@ This example creates a `Pattern` that matches all characters *'a'*, *'c'* and *'
 
 ### Functional design ###
 
-Every modification on an `Element` applies to a new instance and let the original Element unchanged. This is to avoid side effects.
+Every modification of an `Element` applies to a new instance and let the original Element unchanged. This is to avoid side effects.
 The following sample demonstrates the purpose of this design decision:
 
 
     Element string = new StringElement("foo"); 
     new RegexBuilder(string, string.many());
 
-The method `many()` returns a new instance of type `StringElement` with the same state like the `string`-instance **plus** the modification done by this method. So, this manipulation doesn't *contanimate* the state of the `string`-instance.
+The method `many()` returns a new instance of type `StringElement` with the same data copied from the `string`-instance **plus** the modification to apply many matches. So, this manipulation doesn't *contanimate* the state of the `string`-instance.
  
 
 ----------
@@ -70,114 +70,22 @@ Here is a sample how you can access groups:
 
 All elements are contained in the package `de.jepfa.regex.elements`.
 
-<table>
-    <tr>
-		<th>Element</th>
-		<th>Description</th>
-		<th>Regex meaning as example</th>
-		<th>Changeable</th>
-		<th>Indexable</th>
-	</tr>
-
-	<tr>
-		<td><pre>Chars</pre></td>
-		<td>A Character Set, a set of characters</td>
-		<td><code>[ac-z\s]</code></td>
-		<td>Yes</td>
-		<td>No</td>
-    </tr>
-	<tr>
-        <td><pre>Group</pre></td>
-		<td>A group of Elements. Match results of Groups can be accessed with Matcher.group(int)</td>
-		<td><code>(foo*[bB]ar)</code></td>
-		<td>Yes</td>
-		<td>Yes</td>
-    </tr>
-	<tr>
-        <td><pre>Choice</pre></td>
-		<td>A Group of Elements that are joined with logical ORs</td>
-		<td><code>(foo*|[bB]ar|bear)</code></td>
-		<td>Yes</td>
-		<td>Yes</td>
-    </tr>
-	<tr>
-        <td><pre>StringElement</pre></td>
-		<td>A quoted common String.</td>
-		<td><code>\Qfoo\E</code></td>
-		<td>Yes</td>
-		<td>No</td>
-    </tr>
-	<tr>
-        <td><pre>Strings</pre></td>
-		<td>A Choice of common Strings.</td>
-		<td><code>(foo|bar|bear)</code></td>
-		<td>Yes</td>
-		<td>Yes</td>
-    </tr>
-	<tr>
-        <td><pre>Word</pre></td>
-		<td>A Group of Elements that is wrapped with word-boundaries</td>
-		<td><code>(\bfoo*[bB]ar\b)</code></td>
-		<td>Yes</td>
-		<td>Yes</td>
-    </tr>
-	<tr>
-        <td><pre>Words</pre></td>
-		<td>A Choice of common Strings, wrapped with word-boundaries</td>
-		<td><code>(\bfoo\b|\bbar\b|\bbear\b)</code></td>
-		<td>Yes</td>
-		<td>Yes</td>
-    </tr>
-	<tr>
-        <td><pre>NonCapturing</pre></td>
-		<td>A Group of Elements that cannot be accessed with Matcher.group(int)</td>
-		<td><code>(?:foo*[bB]ar)</code></td>
-		<td>Yes</td>
-		<td>No</td>
-    </tr>
-	<tr>
-        <td><pre>Lookahead</pre></td>
-		<td>A non-capturing lookahead instruction</td>
-		<td><code>(?=foo*[bB]ar)</code></td>
-		<td>Yes</td>
-		<td>No</td>
-    </tr>
-	<tr>
-        <td><pre>Lookbehind</pre></td>
-		<td>A  non-capturing lookbehind instruction</td>
-		<td><code>(?&lt;=foo*[bB]ar)</code></td>
-		<td>Yes</td>
-		<td>No</td>
-    </tr>
-	<tr>
-        <td><pre>PlainElement</pre></td>
-		<td>A plain, not modified or enriched Regex element as a common String.</td>
-		<td><code>al\l ((is po?ss[ib]le</code></td>
-		<td>Yes</td>
-		<td>No</td>
-    </tr>
-	<tr>
-        <td><pre>Any</pre></td>
-		<td>Predefined expressions for wildcards</td>
-		<td><code>.</code></td>
-		<td>No, use <code>changeable()</code> to become a changeable element of it</td>
-		<td>No</td>
-    </tr>
-	<tr>
-        <td><pre>Boundary</pre></td>
-		<td>Predefined expressions of boundary matches</td>
-		<td><code>^</code></td>
-		<td>No, use <code>changeable()</code> to become a changeable element of it</td>
-		<td>No</td>
-    </tr>
-	<tr>
-        <td><pre>Char</pre></td>
-		<td>Predefined expressions of character classes</td>
-		<td><code>\d</code></td>
-		<td>No, use <code>changeable()</code> to become a changeable element of it</td>
-		<td>No</td>
-    </tr>
-</table>
+|Element|Description|Regex meaning as example|Changeable|Indexable|
+|-------|-----------|------------------------|----------|---------|
+|`Chars`|A set of characters, also called Character classes|`[ac-z\s]`|Yes|No|
+ |`Group`|A group of elements. Match results of Groups can be accessed with `Matcher.group(int)`|`(foo*[bB]ar)`|Yes|Yes|
+|`Choice`|A `Group` of elements joined by logical ORs|`(foo*|[bB]ar|bear)`|Yes|Yes|
+|`StringElement`|A quoted common String|`\Qfoo\E`|Yes|No|
+|`Strings`|A `Choice` of many `StringElement`|`(\Qfoo\E|\Qbar\E|\Qbear\E)`|Yes|Yes|
+|`Word`|A `Group` of elements wrapped by word-boundaries|`(\bfoo*[bB]ar\b)`|Yes|Yes|
+|`Words`|A `Choice` of many `Word`, wrapped by word-boundaries|`(\bfoo\b|\bbar\b|\bbear\b)`|Yes|Yes|
+|`NonCapturing`|A `Group` of elements that cannot be accessed by `Matcher.group(int)`|`(?:foo*[bB]ar)`|Yes|No|
+|`Lookahead`|A non-capturing lookahead instruction|`(?=foo*[bB]ar)`|Yes|No|
+|`Lookbehind`|A  non-capturing lookbehind instruction|`(?&lt;=foo*[bB]ar)`|Yes|No|
+|`PlainElement`|A plain, not modified or enriched Regex element as a common String.|`al\l ((is po?ss[ib]le`|Yes|No|
+|`Any`|Predefined expression for wildcards|`.`|No, use `changeable()` to get a changeable element|No|
+|`Boundary`|Predefined expressions of boundary matches|`^`|No, use `changeable()` to get a changeable element|No|
+|`Char`|Predefined expressions of character classes|`\d`|No, use `changeable()` to get a changeable element|No|
 
 
 
@@ -187,95 +95,23 @@ All elements are contained in the package `de.jepfa.regex.elements`.
 
 Each `Element` has its own `Quantifier`. A Quantifier defines the quantification of an element and the matching strategy.
 
-<table>
-    <tr>
-		<th>Element method</th>
-		<th>Description</th>
-		<th>Regex meaning</th>
-		<th>Min</th>
-		<th>Max</th>
-	</tr>
-
-	<tr>
-		<td><pre>optional()</pre></td>
-		<td>Indicates zero occurrences of the corresponding element.</td>
-		<td><code>?</code> or <code>*</code></td>
-		<td>0</td>
-		<td>?</td>
-    </tr>
-	<tr>
-		<td><pre>many()</pre></td>
-		<td>Indicates infinity occurrences of the corresponding element.</td>
-		<td><code>+</code> or <code>*</code></td>
-		<td>?</td>
-		<td>&infin;</td>
-    </tr>
-	<tr>
-		<td><pre>arbitrary()</pre></td>
-		<td>Indicates zero or infinity occurrences of the corresponding element.</td>
-		<td><code>*</code></td>
-		<td>0</td>
-		<td>&infin;</td>
-    </tr>
-	<tr>
-		<td><pre>least(n)</pre></td>
-		<td>Indicates at least <i>n</i> occurrences of the corresponding element.</td>
-		<td><code>{n,}</code></td>
-		<td>n</td>
-		<td>&infin;</td>
-    </tr>
-	<tr>
-		<td><pre>most(n)</pre></td>
-		<td>Indicates at most <i>n</i> occurrences of the corresponding element.</td>
-		<td><code>{0,n}</code></td>
-		<td>0</td>
-		<td>n</td>
-    </tr>
-	<tr>
-		<td><pre>count(n)</pre></td>
-		<td>Indicates extactly <i>n</i> occurrences of the corresponding element.</td>
-		<td><code>{n}</code></td>
-		<td>n</td>
-		<td>n</td>
-    </tr>
-	<tr>
-		<td><pre>range(m, n)</pre></td>
-		<td>Indicates <i>m</i> till <i>n</i> occurrences of the corresponding element.</td>
-		<td><code>{m,n}</code></td>
-		<td>m</td>
-		<td>n</td>
-    </tr>
-</table>
+|Element method|Description|Regex meaning|Min|Max|
+|------------------------|----------------|---------------------|-----|------|
+|`optional()`|Indicates possible zero occurrences of the corresponding element|`?` or `*`|0|?|
+|`many()`|Indicates many occurrences of the corresponding element|`+` or `*`|?|&infin;|
+|`arbitrary()`|Indicates zero or infinity occurrences of the corresponding element|`*`|0|&infin;|
+|`least(n)`|Indicates at least *n* occurrences of the corresponding element|`{n,}`|n|&infin;|
+|`most(n)`|Indicates at most *n* occurrences of the corresponding element|`{0,n}`|0|n|
+|`count(n)`|Indicates extactly *n* occurrences of the corresponding element|`{n}`|n|n|
+|`range(m, n)`|ndicates *m* til *n* occurrences of the corresponding element|`{m,n`|m|n|
 
 Matching strategies are defined in the enum `Quantifier.Strategy`.
 
-<table>
-    <tr>
-		<th>Matching strategy</th>
-		<th>Description</th>
-		<th>Regex extention to quantifer</th>
-		<th>Regex example</th>
-	</tr>
-
-	<tr>
-		<td><pre>GREEDY</pre></td>
-		<td>Match as many characters as possible.</td>
-		<td><i>none</i></td>
-		<td><code>a{2}</code></td>
-    </tr>
-	<tr>
-		<td><pre>LAZY</pre></td>
-		<td>Match as few characters as possible.</td>
-		<td><code>?</code></td>
-		<td><code>a{2}?</code></td>
-    </tr>
-	<tr>
-		<td><pre>POSSESSIVE</pre></td>
-		<td>Match as many characters as possible but don't use backtracking.</td>
-		<td><code>+</code></td>
-		<td><code>a{2}+</code></td>
-    </tr>
-</table>
+|Matching strategy|Description|Regex extention to quantifer|Regex example|
+|--------------------------|----------------|----------------------------------------|----------------------|
+|`GREEDY`|Match as many characters as possible|*none*|`a{2}`|
+|`LAZY`|Match as few characters as possible|`?`|`a{2}?`|
+|`POSSESSIVE`|Match as many characters as possible but don't use backtracking|`+`|`a{2}+`|
 
 
 
@@ -328,46 +164,46 @@ This is a possible Regular Expression for that challenge.
 
 With the RegexBuilder, it looks like follows:
 
-		RegexBuilder builder = new RegexBuilder(Flag.MULTILINE);
-		
-		
-		Group protocolGroup = new Group(					// (http[s]?)
-				new StringElement("http"),					//  http
-				new Chars('s').optional()					//      [s]?
-		);
-		
-		Group domainGroup = new Group(						// ((\w(\w|[-.])+)\.\p{Alpha}+)
-				new Group(									//  (\w(\w|[-.])+)
-						Char.WORD_CHAR,						//   \w
-						new Choice(							//     (\w|[-.])
-								Char.WORD_CHAR,				//      \w
-								new Chars("-.")				//         [-.]
-						).many()							//     (\w|[-.])+
-				),
-				new Chars('.'),								//                \.
-				Char.ALPHA_CHAR.many()						//                  \p{Alpha}+
-		);
-		
-		Group portGroup = new Group(						// (\d+)
-				Char.NUMBER									//  \d+
-		).optional();										// (\d+)?
-		
-		Group endpointPathGroup = new Group(				// (.*)									
-				Any.ANY										//  .*					
-		);
-		
-		
-		builder.add( 										// ^(http[s]?)://((\w(\w|[-.])+)\.\p{Alpha}+).?(\d+)?/?(.*)$
-				Boundary.LINE_START,						// ^
-				protocolGroup, 								//  (http[s]?)
-				new StringElement("://"),					//            ://
-				domainGroup, 								//               ((\w(\w|[-.])+)\.\p{Alpha}+)
-				Any.ANY_CHAR.optional(),					//                                           .?
-				portGroup,									//                                             (\d+)?
-				new Chars('/').optional(),					//                                                   /?
-				endpointPathGroup,							//                                                     (.*)
-				Boundary.LINE_END							//                                                         $
-		);
+        RegexBuilder builder = new RegexBuilder(Flag.MULTILINE);
+        
+        
+        Group protocolGroup = new Group(					// (http[s]?)
+                new StringElement("http"),					//  http
+                new Chars('s').optional()					//      [s]?
+        );
+        
+        Group domainGroup = new Group(						// ((\w(\w|[-.])+)\.\p{Alpha}+)
+                new Group(									//  (\w(\w|[-.])+)
+                        Char.WORD_CHAR,						//   \w
+                        new Choice(							//     (\w|[-.])
+                                Char.WORD_CHAR,				//      \w
+                                new Chars("-.")				//         [-.]
+                        ).many()							//     (\w|[-.])+
+                ),
+                new Chars('.'),								//                \.
+                Char.ALPHA_CHAR.many()						//                  \p{Alpha}+
+        );
+        
+        Group portGroup = new Group(						// (\d+)
+                Char.NUMBER									//  \d+
+        ).optional();										// (\d+)?
+        
+        Group endpointPathGroup = new Group(				// (.*)									
+                Any.ANY										//  .*					
+        );
+        
+        
+        builder.add( 										// ^(http[s]?)://((\w(\w|[-.])+)\.\p{Alpha}+).?(\d+)?/?(.*)$
+                Boundary.LINE_START,						// ^
+                protocolGroup, 								//  (http[s]?)
+                new StringElement("://"),					//            ://
+                domainGroup, 								//               ((\w(\w|[-.])+)\.\p{Alpha}+)
+                Any.ANY_CHAR.optional(),					//                                           .?
+                portGroup,									//                                             (\d+)?
+                new Chars('/').optional(),					//                                                   /?
+                endpointPathGroup,							//                                                     (.*)
+                Boundary.LINE_END							//                                                         $
+        );
 
 The resulting regex string differs a little bit, but the result should be the same:
 
